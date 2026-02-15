@@ -528,14 +528,14 @@ Output: $y \in \mathbb{R}^m$:
 
 Given a sample from:
 ~~~align*
-& y = f(x) + \varepsilon;\\
+& y = \hat{f}(x) + \varepsilon;\\
 & \varepsilon \sim P(\varepsilon \mid x);\\
 & \E \left[ \varepsilon \mid x \right] = 0.
 ~~~
 
 find a model $m(x)$ such that:
 ~~~align*
-m(x) \approx \E\left[y \mid x\right] f(x).
+m(x) \approx \E\left[y \mid x\right] = \hat{f}(x).
 ~~~
 
 ***
@@ -580,6 +580,21 @@ Q(y \mid x) \approx P(y \mid x).
 ~~~equation*
   f^*(x) = \E\left[ y \mid x \right]
 ~~~
+
+### Regression: MSE
+
+~~~center
+MSE always recovers the mean in the limit of infinite data.\\
+Not always as efficient of MLE.
+~~~
+~~~multline*
+\mathcal{L}(f) = \E \left[ \left(y - f\left(x\right)\right)^2\;\middle|\; x \right] = \\
+  \E \left[ y^2 - 2 y\,f(x) + f^2(x) \;\middle|\; x \right] = \\
+  \E \left[ y_c^2 - 2 y_c \mu(x) - 2 y_c\,f(x) + f^2(x) - 2 \mu(x) f(x)  + \mu^2(x) \;\middle|\; x \right] = \\
+    \sigma^2 + 0 + 0 +  \E \left[\left(f(x) - \mu(x)\right)^2 \;\middle|\; x \right] 
+~~~
+where:
+- $y_c = y - \E y = y - \mu$;
 
 ### Regression: MAE
 
