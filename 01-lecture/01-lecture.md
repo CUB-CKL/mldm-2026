@@ -491,30 +491,77 @@ Problem:
 ### Differences from statistics
 
 Machine Learning:
-- usually, probability densities are intractable;
+- distributions are often intractable;
 - high-dimensionality/small sample sizes;
-- hence, no p-values etc;
-- less formal assumptions.
+- **universal approximators**;
+- solves direct problem.
 
+***[T]
+
+Statistics:
+- process modelling;
+- low-dimensionality/large sample sizes;
+- (approx.) prob. distributions;
+- **exact inference**;
+- infers process parameters.
 
 ## Supervised learning
 
 ### Regression
 
-Output: $y \in \mathbb{R}$.
+Input: $x \in \mathbb{R}^n$:
+- samples;
+- features;
+- inputs;
+- predictor (statistics).
 
-Assumptions:
-- $y = f(x) + \varepsilon(x)$;
-- $\varepsilon(x)$ --- noise:
-  - $\forall x_1, x_2: x_1 \neq x_2 \Rightarrow \varepsilon(x_1)\;\text{independent from}\; \varepsilon(x_2)$;
-  - $\forall x: \E \varepsilon(x) = 0$.
+Output: $y \in \mathbb{R}^m$:
+- target;
+- label;
+- response.
 
-- often, $\varepsilon(x)$ is assumed not to be dependent on $x$.
+***
+
+![width=1](imgs/regression-example-1.png)
+
+### (Ordinary) Regression
+
+Given a sample from:
+~~~align*
+& y = f(x) + \varepsilon;\\
+& \varepsilon \sim P(\varepsilon \mid x);\\
+& \E \left[ \varepsilon \mid x \right] = 0.
+~~~
+
+find a model $m(x)$ such that:
+~~~align*
+m(x) \approx \E\left[y \mid x\right] f(x).
+~~~
+
+***
+
+![width=1](imgs/regression-example-2.png)
+
+### General Regression
+
+Given a sample from:
+~~~align*
+& y = P(y \mid x);
+~~~
+find a model $Q(y \mid x)$ such that:
+~~~align*
+Q(y \mid x) \approx P(y \mid x).
+~~~
+
+***
+
+![width=1](imgs/regression-example-3.png)
 
 ### Regression loss
 
 ~~~multline*
-  \mathcal{L}(f) = -\sum_i \log P((x_i, y_i) \mid f) = \\
+  \mathcal{L}(f) =
+    -\sum_i \log P_y(y_i \mid f, x_i) =\\
     -\sum_i \log P_\varepsilon(y_i - f(x_i) \mid f, x_i) =\\
     -\sum_i \log P_\varepsilon(y_i - f(x_i) \mid x_i)
 ~~~
@@ -741,11 +788,11 @@ $$f(\theta) = \sum^N_{i = 1} f_i(\theta)$$
 
 ### Tricky example
 
-![width=1](imgs/example-1.png)
+![width=0.7](imgs/tricky-data.png)
 
 ### Tricky example
 
-![width=1](imgs/example-2.png)
+![width=0.7](imgs/tricky-trends.png)
 
 ### ...
 
