@@ -7,6 +7,7 @@
 \institute{Constructor University Bremen}
 
 \usepackage{algorithm}
+\usepackage{booktabs}
 \usepackage{algpseudocode}
 \usepackage{setspace}
 \usepackage{framed}
@@ -690,6 +691,190 @@ $$\phi(x) = \{1, \sin(x), \cos(x), \sin(2x), \cos(2x), \dots\}$$
   Source: \texttt{eric-kim.net}
 }`
 
+## Kernel methods
+
+### Kernel methods: motivation
+
+Basis expansion $f(x) = w \cdot \phi(x)$ is powerful but costly:
+
+- polynomial features of degree $d$ on $\mathbb{R}^n$: $O(n^d)$ features;
+- to capture complex structure, we may need $K \to \infty$;
+- training in primal space costs $O(K^3)$.
+
+### Kernel methods
+
+~~~theorem
+The optimal $w^*$ always lies in the span of training features:
+$$w^* = \sum_{i=1}^n \alpha_i \phi(x_i)$$
+~~~
+
+~~~equation*
+f^*(x) = x \cdot w^* = x \cdot \left(\sum_{i=1}^n \alpha_i\,\phi(x_i)\right) = \sum_i \alpha_i \left(x \cdot x_i\right). 
+~~~
+$\Rightarrow$ we can work with **scalar products** only: $\phi(x) \cdot \phi(x')$.
+
+### Primal: ridge regression in feature space
+
+Given feature map $\phi: \mathcal{X} \to \mathbb{R}^K$:
+
+~~~equation*
+  \mathcal{L}(w) = \| \Phi w - y \|^2 + \lambda \|w\|^2 \to \min_w
+~~~
+
+where $\Phi \in \mathbb{R}^{n \times K}$, $\Phi_{ij} = \phi_j(x_i)$.
+
+
+**Primal** solution:
+~~~equation*
+  \underbrace{w^*}_{K} = \left(\underbrace{\Phi^T \Phi + \lambda I_K}_{K \times K}\right)^{-1}\; \underbrace{\Phi^T}_{K \times n}\; \underbrace{y}_{n}
+~~~
+
+### From primal to dual
+
+The optimality condition $\nabla_w \mathcal{L} = 0$ gives:
+~~~eqnarray*
+  2 \Phi^T (\Phi w - y) + 2\lambda w &=& 0 \\
+  w &=& \frac{1}{\lambda} \Phi^T \underbrace{(y - \Phi w)}_{=: \lambda\alpha} = \Phi^T \alpha
+~~~
+
+Substituting $w = \Phi^T \alpha$ back:
+~~~eqnarray*
+  \Phi \Phi^T \alpha + \lambda \alpha &=& y \\
+  (K + \lambda I_n) \alpha &=& y
+~~~
+
+where $K_{ij} = \phi(x_i) \cdot \phi(x_j)$ is the **Gram matrix**.
+
+### Theorem: primal–dual equivalence
+
+~~~theorem
+The primal and dual solutions are equivalent:
+\begin{align*}
+  w^* &= (\Phi^T \Phi + \lambda I_K)^{-1} \Phi^T y; \\[2mm]
+  \alpha^* &= (K + \lambda I_n)^{-1} y.
+\end{align*}
+\begin{equation*}
+  w^* = \Phi^T \alpha^*
+\end{equation*}
+~~~
+
+Two forms of solution:
+~~~align*
+  f_p(x) &= w \cdot \phi(x);\\
+  f_k(x) &= \sum_i \alpha_i\;\phi(x) \cdot \phi(x_i).
+~~~
+
+### Kernel trick
+
+Define the **kernel function** $k: \mathcal{X} \times \mathcal{X} \to \mathbb{R}$:
+
+~~~align*
+k(x, x') = \phi(x) \cdot \phi(x').
+~~~
+
+The dual solution only depends on $k$:
+~~~align*
+  \alpha^* &= (K + \lambda I)^{-1} y, & K_{ij} = k(x_i, x_j), \\
+  f(x') &= \sum_i \alpha^*_i\, k(x_i, x'). &
+~~~
+
+### Kernel
+
+**Definition.** A function $k: \mathcal{X} \times \mathcal{X} \to \mathbb{R}$ is a **kernel** if it is:
+
+- **symmetric**: $k(x, x') = k(x', x)$;
+- **positive semi-definite** (PSD): for all $n$, all $x_1, \dots, x_n \in \mathcal{X}$, $c_1, \dots, c_n \in \mathbb{R}$:
+
+$$\sum_{i,j} c_i\, c_j\, k(x_i, x_j) \geq 0$$
+
+Equivalently, the Gram matrix $K_{ij} = k(x_i, x_j)$ is PSD for any finite set of points.
+
+### Feature maps induce kernels
+
+Every feature map $\phi: \mathcal{X} \to \mathcal{H}$ into a Hilbert space induces a kernel:
+
+$$k(x, x') = \phi(x) \cdot \phi(x')$$
+
+- **symmetry**: $\phi(x) \cdot \phi(x') = \phi(x') \cdot \phi(x)$;
+- **PSD**: $\sum_{i,j} c_i c_j\, \phi(x_i) \cdot \phi(x_j) = \left\|\sum_i c_i\, \phi(x_i)\right\|^2 \geq 0$.
+
+### Every kernel is a scalar product
+
+~~~theorem
+\textbf{Theorem (Mercer).} $k: \mathcal{X} \times \mathcal{X} \to \mathbb{R}$ is a kernel if and only if there exists a Hilbert space $\mathcal{H}$ and a feature map $\phi: \mathcal{X} \to \mathcal{H}$ such that:
+$$k(x, x') = \phi(x) \cdot \phi(x').$$
+~~~
+
+- the feature space $\mathcal{H}$ may be infinite-dimensional;
+- it is not unique --- many $(\mathcal{H}, \phi)$ can realise the same $k$;
+- the canonical choice is the RKHS $\mathcal{H}_k$ with $\phi(x) = k(x, \cdot)$.
+
+### Representer theorem
+
+~~~
+\begin{theorem}[A Generalized Representer Theorem]
+Let $\mathcal{H}_k$ be an RKHS and consider:
+\begin{equation*}
+  \min_{f \in \mathcal{H}_k}\; \sum_{i=1}^n L\!\left(y_i,\, f(x_i)\right) + \Omega\!\left(\|f\|_{\mathcal{H}_k}\right)
+\end{equation*}
+where $L$ is any loss and $\Omega: \mathbb{R}_{\geq 0} \to \mathbb{R}$ is strictly monotone increasing.
+
+Then every minimizer admits the representation:
+\begin{equation*}
+  f^*(x) = \sum_{i=1}^n \alpha_i\, k(x_i, x)
+\end{equation*}
+\end{theorem}
+~~~
+
+### Common kernels
+
+~~~
+\begin{tabular}{lll}
+  \toprule
+  \textbf{Kernel} & $k(x, x')$ & \textbf{Notes} \\
+  \midrule
+  Linear      & $x \cdot x'$ & $\phi(x) = x$ \\
+  Polynomial  & $(x \cdot x' + c)^d$ & degree-$d$ features \\
+  RBF / Gaussian & $\exp\!\left(-\dfrac{\|x - x'\|^2}{2\sigma^2}\right)$ & $\infty$-dim $\phi$ \\[4mm]
+  Laplace     & $\exp\!\left(-\dfrac{\|x - x'\|}{\sigma}\right)$ & less smooth than RBF \\[4mm]
+  Mat\'{e}rn  & (various) & controlled smoothness \\
+  \bottomrule
+\end{tabular}
+~~~
+
+### Example
+
+![width=0.9](imgs/rbf-data.pdf)
+
+### Example
+
+![width=0.9](imgs/rbf-kernels.pdf)
+
+### Example
+
+![width=0.9](imgs/rbf-1-scaled.pdf)
+
+### Example
+
+![width=0.9](imgs/rbf-1-solution.pdf)
+
+### Example
+
+![width=0.9](imgs/rbf-2-scaled.pdf)
+
+### Example
+
+![width=0.9](imgs/rbf-2-solution.pdf)
+
+### Example
+
+![width=0.9](imgs/rbf-3-scaled.pdf)
+
+### Example
+
+![width=0.9](imgs/rbf-3-solution.pdf)
+
+## Classification
 
 ### Classification
 
@@ -786,7 +971,7 @@ $$f(\theta) = \sum^N_{i = 1} f_i(\theta)$$
   \State $\theta := \text{initialization}$
   \For{$t := 1, \dots$}
     \State $i := \mathrm{random}(1, \dots, N)$
-    \State $\theta := \theta - \alpha \nabla f_i(\theta^t)$
+    \State $\theta^{t + 1} := \theta^t - \alpha \nabla f_i(\theta^t)$
   \EndFor
 \end{algorithmic}
 \end{spacing}
@@ -817,32 +1002,3 @@ $$f(\theta) = \sum^N_{i = 1} f_i(\theta)$$
   \footnotesize
   Source: \texttt{xkcd.com}
 }`
-
-
-## My first neural network
-
-### Universal Approximators
-
-`\begin{block}{Universal Approximation Theorem}`
-  If $\phi$ is a non-constant, continuous, bounded, monotonic function, then every continuous function $f$ on a compact set from $\mathbb{R}^n$
-  can be approximated with any precision $\varepsilon > 0$ by:
-    $$g(x) = c + \sum^N_{i = 1} \alpha_i \phi(w_i \cdot x + b_i)$$
-  given large enough $N$.
-`\end{block}`
-
-### Universal Approximators
-
-![width=1](imgs/mlp.png)
-
-### How to train a neural network
-
-Stochastic Gradient Descent and Co.
-
-### How to train a neural network
-
-Stochastic Gradient Descent and Co.
-
-- how to initialize?
-- how to choose an appropriate learning rate?
-- how many units?
-- which activation function to choose?
