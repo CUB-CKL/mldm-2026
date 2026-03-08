@@ -328,3 +328,5 @@ TSWLatexianTemp*
 .idea/
 
 **/.ipynb_checkpoints/
+
+data/**
