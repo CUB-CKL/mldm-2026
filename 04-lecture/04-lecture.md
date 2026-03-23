@@ -130,6 +130,36 @@ $s \approx 1$: anomaly; $s \approx 0.5$: normal.
 
 **Complexity**: $O(t\,\psi\log\psi)$ --- linear in $n$, no distance computation.
 
+### Robust AE
+
+**Key idea:** anomalies are poorly reconstructed.
+
+~~~align*
+  \mathcal{L} = \sum_i \left( d\left(e(x_i)\right) + s_i - x_i \right)^2 + \lambda \sum_i \|s_i\|_1\to \min
+~~~
+- $e(\cdot)$, $d(\cdot)$ --- auto-encoder;
+- $s_i$ --- sparse residuals.
+
+$l_1$ regularization forces $S$ to be sparse. 
+
+### Iterative AE
+
+**Key idea:** reduce weights of anomalous samples.
+
+~~~align*
+  \mathcal{L} = \sum_i w_i \left( d\left(e(x_i)\right) - x_i \right)^2 \to \min
+~~~
+
+Iterate:
+~~~align*
+  e_i &= \left( d\left(e(x_i)\right) - x_i \right)^2\\
+  w_i &\leftarrow \exp\left(e_i\right).
+~~~
+\vspace{-2em}
+~~~multline*
+  \text{anomalous sample} \rightarrow \text{large error} \rightarrow \text{lower weight} \rightarrow \ldots
+~~~
+
 ### Comparing anomaly detectors
 
 ~~~center
@@ -142,6 +172,7 @@ $z$-score / IQR  & $O(n)$             & No  & No  & Yes \\
 $k$-NN / LOF     & $O(n^2)$           & No  & Yes & Partial \\
 One-class SVM    & $O(n^2)$--$O(n^3)$ & Yes & Yes & No \\
 Isolation Forest & $O(n)$             & Yes & No  & No \\
+Robust AE & $-$             & Yes & No  & No \\
 \bottomrule
 \end{tabular}}
 ~~~

@@ -183,6 +183,42 @@ $s \approx 1$: anomaly; $s \approx 0.5$: normal.
 \end{frame}
 
 \begin{frame}[fragile]
+\frametitle{Robust AE}
+\textbf{Key idea:} anomalies are poorly reconstructed.
+
+\begin{align*}
+  \mathcal{L} = \sum_i \left( d\left(e(x_i)\right) + s_i - x_i \right)^2 + \lambda \sum_i \|s_i\|_1\to \min
+\end{align*}
+\begin{itemize}
+  \item $e(\cdot)$, $d(\cdot)$ --- auto-encoder;
+  \item $s_i$ --- sparse residuals.
+\end{itemize}
+
+$l_1$ regularization forces $S$ to be sparse. 
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Iterative AE}
+\textbf{Key idea:} reduce weights of anomalous samples.
+
+\begin{align*}
+  \mathcal{L} = \sum_i w_i \left( d\left(e(x_i)\right) - x_i \right)^2 \to \min
+\end{align*}
+
+Iterate:
+\begin{align*}
+  e_i &= \left( d\left(e(x_i)\right) - x_i \right)^2\\
+  w_i &\leftarrow \exp\left(e_i\right).
+\end{align*}
+\vspace{-2em}
+\begin{multline*}
+  \text{anomalous sample} \rightarrow \text{large error} \rightarrow \text{lower weight} \rightarrow \ldots
+\end{multline*}
+
+\end{frame}
+
+\begin{frame}[fragile]
 \frametitle{Comparing anomaly detectors}
 \begin{center}
 {\footnotesize\setlength\tabcolsep{4pt}
@@ -194,6 +230,7 @@ $z$-score / IQR  & $O(n)$             & No  & No  & Yes \\
 $k$-NN / LOF     & $O(n^2)$           & No  & Yes & Partial \\
 One-class SVM    & $O(n^2)$--$O(n^3)$ & Yes & Yes & No \\
 Isolation Forest & $O(n)$             & Yes & No  & No \\
+Robust AE & $-$             & Yes & No  & No \\
 \bottomrule
 \end{tabular}}
 \end{center}
